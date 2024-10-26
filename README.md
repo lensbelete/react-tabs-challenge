@@ -1,6 +1,6 @@
 # react-tabs-challenge
 
-This project is a simple react-based tab component that fetches and displays texts or paragraph from the Loripsum.net API. Each tab fetches a unique type of content when user navigates through them.
+This project is a simple react-based tab component that fetches and displays texts or paragraph from the Loripsum.net API. It fetches a unique type of content for each of the tabs.
 
 
 Demo
