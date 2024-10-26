@@ -26,6 +26,7 @@ npm install
 3. Set up a proxy server to handle CORS for the Loripsum.net API:
 ```bash
 npm install express
+npm install axios
 npm install cors
 ```
 Start the proxy server:
