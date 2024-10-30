@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 const Tabs = () => {
   const [activeTab, setActiveTab] = useState(1);
   const [tabContent, setTabContent] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const tabs = [
     { id: 1, tabTitle: 'Tab 1', title: 'Title 1' },
     { id: 2, tabTitle: 'Tab 2', title: 'Title 2' },
@@ -10,28 +13,38 @@ const Tabs = () => {
     { id: 4, tabTitle: 'Tab 4', title: 'Title 4' },
   ];
 
+  const fetchTabContent = async (tabId) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`https://loripsum.net/`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+
+      const data = await response.text();
+    
+      setTabContent((prevContent) => ({
+        ...prevContent,
+        [tabId]: data,
+      }));
+    } catch (err) {
+      setError(`Error fetching content for Tab`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!tabContent[activeTab]) {
-      fetch(`http://localhost:8080/api/1/short`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.text();
-        })
-        .then((data) => {
-          const strippedData = data.replace(/<\/?[^>]+(>|$)/g, "");
-          console.log(`Fetched content for Tab ${activeTab}:`, strippedData);
-          setTabContent((prevContent) => ({
-            ...prevContent,
-            [activeTab]: strippedData,
-          }));
-        })
-        .catch((error) => {
-          console.error('Error fetching content:', error);
-        });
+      fetchTabContent(activeTab);
     }
   }, [activeTab]);
+
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+  };
 
   return (
     <div className="container">
@@ -40,15 +53,23 @@ const Tabs = () => {
           <button
             key={tab.id}
             className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabClick(tab.id)}
           >
             {tab.tabTitle}
           </button>
         ))}
       </div>
+
+    
       <div className="content">
         <h2>{tabs.find((tab) => tab.id === activeTab)?.title}</h2>
-        <p>{tabContent[activeTab] || 'Loading content...'}</p>
+        {loading ? (
+          <p>Loading content...</p>
+        ) : error ? (
+          <p className="error">{error}</p>
+        ) : (
+          <p>{tabContent[activeTab]}</p>
+        )}
       </div>
     </div>
   );
